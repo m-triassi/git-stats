@@ -30,21 +30,34 @@ class Driver(object):
             json.dump(results, f, sort_keys=True, indent=4)
         return 0
 
+    # Get Commits for passed username return as paginated lists
     @staticmethod
-    def getCommits(user):
-        # Get Commits for passed username
-        return ""
+    def getCommits(username):
+        user = g.get_user(username)
+        repositories = user.get_repos()
+        commits = []
+        for repo in repositories:
+            repoCommits = repo.get_commits()
+            commits.append(repoCommits)
+        print(commits)
+        return commits
 
+    # Extrapolate time of passed commit, in our standardized form
     @staticmethod
     def fetchTime(commit):
-        # Extrapolate time of passed commit, in our standardized form
         return ""
 
+    # Gather all the commit times for a given user
+    # Uses getCommits and fetchTime
     @staticmethod
-    def compileTimesForUser(user):
-        # Gather all the commit times for a given user
-        # Uses getCommits and fetchTime
-        return ""
+    def compileTimesForUser(username):
+        commits = Driver.getCommits(username)
+        times = []
+        for commitList in commits:
+            for commit in commitList:
+                print(commit.commit.committer.name + " : " + str(commit.commit.committer.date))
+                #times.append(commit.stats)
+        return times
 
     @staticmethod
     def analyzeUsers(userList):

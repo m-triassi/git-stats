@@ -1,3 +1,4 @@
 from driver import Driver
 
-Driver.findUsers()
+#Driver.findUsers()
+commits = Driver.compileTimesForUser("m-triassi")
