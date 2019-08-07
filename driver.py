@@ -16,8 +16,12 @@ class Driver(object):
         print(g.get_user().created_at)
         start = g.get_user().id
         endpoint = "https://api.github.com/users?"
-        response = requests.get(endpoint + "since="+str(start), headers={'Authorization': 'token ' + token})
-        print(json.dumps(json.loads(response.text) ,sort_keys=True, indent=4))
+        for x in range(1, 100):
+            pageJump = x*10000
+            since = start+pageJump
+            print(since)
+            r = requests.get(endpoint + "since="+str(since), headers={'Authorization': 'token ' + token})
+            print(json.dumps(json.loads(r.text) ,sort_keys=True, indent=4))
         return ""
 
     @staticmethod
