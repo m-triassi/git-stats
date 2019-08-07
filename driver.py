@@ -5,17 +5,19 @@ import json
 import settings
 
 from github import Github
+token = os.getenv("GIT_ACCESS_TOKEN")
+g = Github(token)
 
 class Driver(object):
 
-    def __init__():
-        g = Github(os.getenv("GIT_ACCESS_TOKEN"))
-
+    # Create a json file of target github users
     @staticmethod
     def findUsers():
+        print(g.get_user().created_at)
+        start = g.get_user().id
         endpoint = "https://api.github.com/users?"
-        print(endpoint)
-        # Create a json file of target github users
+        response = requests.get(endpoint + "since="+str(start), headers={'Authorization': 'token ' + token})
+        print(json.dumps(json.loads(response.text) ,sort_keys=True, indent=4))
         return ""
 
     @staticmethod
