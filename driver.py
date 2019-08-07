@@ -16,13 +16,19 @@ class Driver(object):
         print(g.get_user().created_at)
         start = g.get_user().id
         endpoint = "https://api.github.com/users?"
-        for x in range(1, 100):
-            pageJump = x*10000
+        results = []
+        for x in range(1, int(os.getenv("PAGE_COUNT"))):
+            pageJump = x*int(os.getenv("JUMP_INTERVAL"))
             since = start+pageJump
-            print(since)
             r = requests.get(endpoint + "since="+str(since), headers={'Authorization': 'token ' + token})
-            print(json.dumps(json.loads(r.text) ,sort_keys=True, indent=4))
-        return ""
+            users = json.loads(r.text)
+            for user in users:
+                results.append(user["login"])
+                print(user["login"]+" added!")
+            #print(json.dumps(json.loads(r.text) ,sort_keys=True, indent=4))
+        with open(os.getenv("USERNAME_FILE"), 'w') as f:
+            json.dump(results, f, sort_keys=True, indent=4)
+        return 0
 
     @staticmethod
     def getCommits(user):
