@@ -4,7 +4,9 @@ import string
 import json
 import settings
 
+from timezonefinder import TimezoneFinder
 from github import Github
+from geopy import  geocoders
 token = os.getenv("GIT_ACCESS_TOKEN")
 g = Github(token)
 
@@ -30,33 +32,35 @@ class Driver(object):
             json.dump(results, f, sort_keys=True, indent=4)
         return 0
 
-    # Get Commits for passed username return as paginated lists
-    @staticmethod
-    def getCommits(username):
-        user = g.get_user(username)
-        repositories = user.get_repos()
-        commits = []
-        for repo in repositories:
-            repoCommits = repo.get_commits()
-            commits.append(repoCommits)
-        print(commits)
-        return commits
+    # # Get Events for passed username return as paginated lists
+    # @staticmethod
+    # def getEvents(username):
+    #     user = g.get_user(username)
+    #     events = user.get_events()
+    #     return events
 
-    # Extrapolate time of passed commit, in our standardized form
+    # Extrapolate time of passed event, in their local timezone
+    # Achieves this by trying to determine their time zone via location
     @staticmethod
-    def fetchTime(commit):
-        return ""
+    def fetchTime(event, location):
+        if location == "None":
+            return ""
+            pass
+        tf = TimezoneFinder()
+        geo = geocoders.GoogleV3()
+        location, (lat, lng) = geo.geocode(location)
+        timezone = tf.timezone_at(lat=lat, lng=lng)
+        print(timezone)
 
-    # Gather all the commit times for a given user
-    # Uses getCommits and fetchTime
+    # Gather all the event times for a given user
+    # Uses getEvents and fetchTime
     @staticmethod
     def compileTimesForUser(username):
-        commits = Driver.getCommits(username)
+        user = g.get_user(username)
+        events = user.get_events()
         times = []
-        for commitList in commits:
-            for commit in commitList:
-                print(commit.commit.committer.name + " : " + str(commit.commit.committer.date))
-                #times.append(commit.stats)
+        for event in events:
+            Driver.fetchTime(event, user.location)
         return times
 
     @staticmethod
