@@ -1,12 +1,18 @@
-import requests
-import os
-import string
-import json
-import settings
-
-from timezonefinder import TimezoneFinder
+from datetime import datetime, timedelta
 from github import Github
-from geopy import  geocoders
+from pytz import timezone
+from timezonefinder import TimezoneFinder
+
+import csv
+import geocoder
+import json
+import os
+import pytz
+import requests
+import settings
+import string
+
+
 token = os.getenv("GIT_ACCESS_TOKEN")
 g = Github(token)
 
@@ -42,29 +48,43 @@ class Driver(object):
     # Extrapolate time of passed event, in their local timezone
     # Achieves this by trying to determine their time zone via location
     @staticmethod
-    def fetchTime(event, location):
-        if location == "None":
-            return ""
-            pass
+    def fetchTimezone(location):
         tf = TimezoneFinder()
-        geo = geocoders.GoogleV3()
-        location, (lat, lng) = geo.geocode(location)
-        timezone = tf.timezone_at(lat=lat, lng=lng)
-        print(timezone)
+        geo = geocoder.osm(location, maxRows=1)
+        lat = geo.lat
+        lng = geo.lng
+        userTz = tf.timezone_at(lat=lat, lng=lng)
+        return userTz
+
+    @staticmethod
+    def convertTime(time, toTz):
+        utcDt = time.replace(tzinfo=pytz.utc)
+        targetTz = timezone(toTz)
+        targetTime = targetTz.normalize(utcDt.astimezone(targetTz))
+        return targetTime
 
     # Gather all the event times for a given user
-    # Uses getEvents and fetchTime
     @staticmethod
     def compileTimesForUser(username):
         user = g.get_user(username)
+        if user.location == "None":
+            return False
+            pass
         events = user.get_events()
         times = []
+        tz = Driver.fetchTimezone(user.location)
         for event in events:
-            Driver.fetchTime(event, user.location)
+            times.append(Driver.convertTime(event.created_at, tz))
         return times
 
+    # Iterate over userlist
+    # Creates a file of users with their commit times
     @staticmethod
     def analyzeUsers(userList):
-        # Iterate over userlist
-        # Creates a file of users with their commit times
-        return ""
+        csv = []
+        users = json.loads(open(os.getenc("USERNAME_FILE")).read())
+        for user in users:
+            times = Driver.compileTimesForUser(user)
+        with open(os.getenv("USER_DATA_FILE"), 'w') as csvFile:
+
+        return 0
