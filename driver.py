@@ -88,7 +88,7 @@ class Driver(object):
         users = json.loads(open(os.getenv("USERNAME_FILE")).read())
         for user in users:
             times, types = Driver.compileTimesForUser(user)
-            if times != False:
+            if times:
                 i = 0
                 for time in times:
                     data.append([user, types[i], time, time.tzinfo])
