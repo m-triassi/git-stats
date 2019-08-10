@@ -32,7 +32,6 @@ class Driver(object):
             for user in users:
                 results.append(user["login"])
                 print(user["login"]+" added!")
-            #print(json.dumps(json.loads(r.text) ,sort_keys=True, indent=4))
         with open(os.getenv("USERNAME_FILE"), 'w') as f:
             json.dump(results, f, sort_keys=True, indent=4)
         return 0
@@ -98,13 +97,13 @@ class Driver(object):
     # Creates a file of users with their commit times
     @staticmethod
     def analyzeUsers():
-        fmt = "%d/%m/%Y %H:%M%S"
+        # fmt = "%d/%m/%Y %H:%M%S"
         data = [["username", "event_type", "event_timestamp", "timezone"]]
         users = json.loads(open(os.getenv("USERNAME_FILE")).read())
         for user in users:
-            print(user)
             times, types = Driver.compileTimesForUser(user)
             if times:
+                print("adding " + user + "\'s events to data set")
                 i = 0
                 for time in times:
                     data.append([user, types[i], time, time.tzinfo])
