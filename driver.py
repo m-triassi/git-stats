@@ -72,19 +72,29 @@ class Driver(object):
             pass
         events = user.get_events()
         times = []
+        eventTypes = []
         tz = Driver.fetchTimezone(user.location)
         for event in events:
             times.append(Driver.convertTime(event.created_at, tz))
-        return times
+            eventTypes.append(event.type)
+        return times, eventTypes
 
     # Iterate over userlist
     # Creates a file of users with their commit times
     @staticmethod
-    def analyzeUsers(userList):
-        csv = []
-        users = json.loads(open(os.getenc("USERNAME_FILE")).read())
+    def analyzeUsers():
+        fmt = "%d/%m/%Y %H:%M%S"
+        data = [["username", "event_type", "event_timestamp", "timezone"]]
+        users = json.loads(open(os.getenv("USERNAME_FILE")).read())
         for user in users:
-            times = Driver.compileTimesForUser(user)
+            times, types = Driver.compileTimesForUser(user)
+            if times != False:
+                i = 0
+                for time in times:
+                    data.append([user, types[i], time, time.tzinfo])
+                    i += 1
+                pass
         with open(os.getenv("USER_DATA_FILE"), 'w') as csvFile:
-
+            writer = csv.writer(csvFile)
+            writer.writerows(data)
         return 0
