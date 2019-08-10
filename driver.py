@@ -67,7 +67,7 @@ class Driver(object):
     @staticmethod
     def compileTimesForUser(username):
         user = g.get_user(username)
-        if user.location == "None":
+        if user.location == None:
             return False
             pass
         events = user.get_events()
