@@ -68,12 +68,17 @@ class Driver(object):
     def compileTimesForUser(username):
         user = g.get_user(username)
         if user.location == None:
-            return False
+            return False, False
             pass
         events = user.get_events()
         times = []
         eventTypes = []
-        tz = Driver.fetchTimezone(user.location)
+        try:
+            tz = Driver.fetchTimezone(user.location)
+            pass
+        except Exception as e:
+            return False, False
+            raise
         for event in events:
             times.append(Driver.convertTime(event.created_at, tz))
             eventTypes.append(event.type)
@@ -87,6 +92,7 @@ class Driver(object):
         data = [["username", "event_type", "event_timestamp", "timezone"]]
         users = json.loads(open(os.getenv("USERNAME_FILE")).read())
         for user in users:
+            print(user)
             times, types = Driver.compileTimesForUser(user)
             if times:
                 i = 0
