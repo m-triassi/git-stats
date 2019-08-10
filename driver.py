@@ -21,7 +21,6 @@ class Driver(object):
     # Create a json file of target github users
     @staticmethod
     def findUsers():
-        print(g.get_user().created_at)
         start = g.get_user().id
         endpoint = "https://api.github.com/users?"
         results = []
@@ -36,6 +35,17 @@ class Driver(object):
             #print(json.dumps(json.loads(r.text) ,sort_keys=True, indent=4))
         with open(os.getenv("USERNAME_FILE"), 'w') as f:
             json.dump(results, f, sort_keys=True, indent=4)
+        return 0
+
+    def getUserFollowing(user):
+        target = g.get_user(user)
+        following = target.get_following()
+        users = []
+        for follow in following:
+            users.append(follow.login)
+            print(follow.login+" added!")
+        with open(os.getenv("USERNAME_FILE"), 'w') as f:
+            json.dump(users, f, sort_keys=True, indent=4)
         return 0
 
     # # Get Events for passed username return as paginated lists

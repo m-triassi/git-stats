@@ -1,3 +1,4 @@
 from driver import Driver
 
-Driver.analyzeUsers()
+Driver.getUserFollowing("ghqc")
+# Driver.analyzeUsers()
